@@ -1,0 +1,54 @@
+services:
+  vpn:
+    container_name: openconnect-vpn
+    build: .
+    image: amyris/openconnect-bridge:1.1.0
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    sysctls:
+      - net.ipv4.ip_forward=1
+      - net.ipv4.conf.all.src_valid_mark=1
+    volumes:
+      - ./.env:/.env:ro    # Bind mount credentials (não no image)
+      - ./logs:/var/log/vpn
+    ports:
+      - "127.0.0.1:8888:8888"   # HTTP proxy
+      - "127.0.0.1:8889:8889"   # SOCKS5 proxy
+      # Modo B - port forwarding para apps proxy-blind
+      - "127.0.0.1:11433:11433"  # SQL Server corporativo
+      - "127.0.0.1:15432:15432"  # PostgreSQL corporativo
+      # DNS forwarder corporativo
+      - "10.0.0.33:53:53/udp"
+      - "10.0.0.33:53:53/tcp"
+    dns:
+      - 8.8.8.8
+      - 192.168.0.7
+    restart: unless-stopped
+    networks:
+      vpn-net:
+        ipv4_address: 172.28.100.2
+    healthcheck:
+      test: ["CMD-SHELL", "ip link show tun0 | grep -q UP || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 45s
+    secrets:
+      - vpn_password
+    environment:
+      - VPN_GATEWAY=189.57.198.2
+      - VPN_USERNAME=pierre.ribeiro
+      - VPN_FINGERPRINT=RWGedZ1kTtfqrBrbtE4GqJ4ay/1oBB3jF+wTvq54QVw=     
+
+secrets:
+  vpn_password:
+    file: ./.vpn_password
+
+networks:
+  vpn-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.100.0/24

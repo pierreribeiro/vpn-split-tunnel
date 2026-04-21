@@ -1,0 +1,37 @@
+[wsl2]
+# Ativa o modo espelhado (Mirrored)
+#networkingMode=mirrored
+# ALTERADO: mirrored → NAT
+networkingMode=NAT
+
+# Garante que o tráfego DNS da VPN seja resolvido corretamente pelo WSL2
+# Mantém DNS tunneling (melhor comportamento com VPN)
+dnsTunneling=true
+
+# Permite que o Windows Firewall gerencie as conexões do WSL2
+firewall=true
+
+# Melhora a compatibilidade com proxies corporativos, se houver
+# REMOVIDO: autoProxy (pode interferir com proxies do container)
+#autoProxy=true
+
+# Garante que o localhost funcione corretamente
+localhostForwarding = true
+
+# Habilita Gui
+guiApplications = true
+
+# Configurações de performance para o seu i9/Core i7
+memory=12GB
+processors=8
+swap=12GB
+swapFile=D:\\Devops\\WSL\\wsl-swap.vhdx
+
+# Melhora o desempenho da CPU em alguns casos
+kernelCommandLine=intel_pstate=disable
+
+[experimental]
+# Recupera memória RAM não utilizada de forma dinâmica
+autoMemoryReclaim=gradual
+sparseVhd=true
+bestEffortDnsParsing=true
